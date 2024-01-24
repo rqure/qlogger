@@ -4,11 +4,8 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"strconv"
-	"time"
 
 	qmq "github.com/rqure/qmq/src"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func main() {
@@ -17,4 +14,18 @@ func main() {
 	app := qmq.NewQMQApplication(ctx, "")
 	app.Initialize(ctx)
 	defer app.Deinitialize(ctx)
+
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-sigint:
+			return
+		default:
+			app.Logger().PrintNextEntry(ctx)
+		}
+	}
 }
