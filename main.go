@@ -29,7 +29,7 @@ func main() {
 	signal.Notify(sigint, os.Interrupt)
 
 	log.SetFlags(log.Lmicroseconds)
-	
+
 	ticker := time.NewTicker(time.Duration(tickRateMs) * time.Millisecond)
 	for {
 		select {
@@ -45,7 +45,7 @@ func main() {
 					break
 				}
 
-				log.Printf("%s | %s | %s", logMsg.Application, strings.replace(logMsg.Level.String(), "LOG_LEVEL_", "", -1), logMsg.Message)
+				log.Printf("%s | %s | %s", logMsg.Application, strings.Replace(logMsg.Level.String(), "LOG_LEVEL_", "", -1), logMsg.Message)
 				popped.Ack()
 			}
 		}
