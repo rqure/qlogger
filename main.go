@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"time"
 
 	qmq "github.com/rqure/qmq/src"
@@ -27,6 +28,8 @@ func main() {
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, os.Interrupt)
 
+	log.SetFlags(log.Lmicroseconds)
+
 	ticker := time.NewTicker(time.Duration(tickRateMs) * time.Millisecond)
 	for {
 		select {
@@ -42,7 +45,7 @@ func main() {
 					break
 				}
 
-				log.Printf("%s | %s | %s | %s", logMsg.Application, logMsg.Timestamp.AsTime().String(), logMsg.Level.String(), logMsg.Message)
+				log.Printf("%s | %s | %s", logMsg.Application, strings.Replace(logMsg.Level.String(), "LOG_LEVEL_", "", -1), logMsg.Message)
 				popped.Ack()
 			}
 		}
