@@ -15,7 +15,7 @@ func main() {
 	app.Initialize()
 	defer app.Deinitialize()
 
-	key := os.Getenv("APP_NAME") + ":log"
+	key := os.Getenv("APP_NAME") + ":logs"
 	app.AddConsumer(key).Initialize()
 	app.Consumer(key).ResetLastId()
 
