@@ -45,7 +45,7 @@ func main() {
 					break
 				}
 
-				log.Printf("%s | %s | %s", logMsg.Application, strings.Replace(logMsg.Level.String(), "LOG_LEVEL_", "", -1), logMsg.Message)
+				fmt.Printf("%s | %s | %s | %s\n", logMsg.Timestamp.AsTime().String(), logMsg.Application, strings.Replace(logMsg.Level.String(), "LOG_LEVEL_", "", -1), logMsg.Message)
 				popped.Ack()
 			}
 		}
