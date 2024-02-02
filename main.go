@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -28,8 +28,6 @@ func main() {
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, os.Interrupt)
 
-	log.SetFlags(log.Lmicroseconds)
-
 	ticker := time.NewTicker(time.Duration(tickRateMs) * time.Millisecond)
 	for {
 		select {
@@ -45,7 +43,7 @@ func main() {
 					break
 				}
 
-				log.Printf("%s | %s | %s", logMsg.Application, strings.Replace(logMsg.Level.String(), "LOG_LEVEL_", "", -1), logMsg.Message)
+				fmt.Printf("%s | %s | %s | %s\n", logMsg.Timestamp.AsTime().String(), logMsg.Application, strings.Replace(logMsg.Level.String(), "LOG_LEVEL_", "", -1), logMsg.Message)
 				popped.Ack()
 			}
 		}
