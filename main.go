@@ -1,51 +1,34 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"os/signal"
-	"strconv"
-	"strings"
-	"time"
-
 	qmq "github.com/rqure/qmq/src"
 )
 
+type NameProvider struct{}
+
+func (np *NameProvider) Get() string {
+	return "logger"
+}
+
+type TransformerProviderFactory struct {
+	AppNameProvider AppNameProvider
+}
+
+func (t *TransformerProviderFactory) Create(components qmq.EngineComponentProvider) qmq.TransformerProvider {
+	transformerProvider := qmq.NewDefaultTransformerProvider()
+	transformerProvider.Set("consumer:"+t.AppNameProvider.Get()+":logs", []qmq.Transformer{
+		qmq.NewMessageToAnyTransformer(components.WithLogger()),
+		NewAnyToLogTransformer(components.WithLogger()),
+	})
+	return transformerProvider
+}
+
 func main() {
-	app := qmq.NewQMQApplication("logger")
-	app.Initialize()
-	defer app.Deinitialize()
-
-	key := os.Getenv("APP_NAME") + ":logs"
-	app.AddConsumer(key).Initialize()
-	app.Consumer(key).ResetLastId()
-
-	tickRateMs, err := strconv.Atoi(os.Getenv("TICK_RATE_MS"))
-	if err != nil {
-		tickRateMs = 100
-	}
-
-	sigint := make(chan os.Signal, 1)
-	signal.Notify(sigint, os.Interrupt)
-
-	ticker := time.NewTicker(time.Duration(tickRateMs) * time.Millisecond)
-	for {
-		select {
-		case <-sigint:
-			app.Logger().Advise("SIGINT received")
-			return
-		case <-ticker.C:
-			logMsg := &qmq.QMQLog{}
-
-			for {
-				popped := app.Consumer(key).Pop(logMsg)
-				if popped == nil {
-					break
-				}
-
-				fmt.Printf("%s | %s | %s | %s\n", logMsg.Timestamp.AsTime().String(), logMsg.Application, strings.Replace(logMsg.Level.String(), "LOG_LEVEL_", "", -1), logMsg.Message)
-				popped.Ack()
-			}
-		}
-	}
+	appNameProvider := &EnvironmentAppNameProvider{}
+	engine := qmq.NewDefaultEngine(qmq.DefaultEngineConfig{
+		NameProvider:               &NameProvider{},
+		TransformerProviderFactory: &TransformerProviderFactory{AppNameProvider: appNameProvider},
+		EngineProcessor:            &EngineProcessor{AppNameProvider: appNameProvider},
+	})
+	engine.Run()
 }
