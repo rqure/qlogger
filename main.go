@@ -27,6 +27,7 @@ func main() {
 	appNameProvider := &EnvironmentAppNameProvider{}
 	engine := qmq.NewDefaultEngine(qmq.DefaultEngineConfig{
 		NameProvider:               &NameProvider{},
+		ConsumerFactory:            &ConsumerFactory{},
 		TransformerProviderFactory: &TransformerProviderFactory{AppNameProvider: appNameProvider},
 		EngineProcessor:            &EngineProcessor{AppNameProvider: appNameProvider},
 	})
