@@ -11,6 +11,6 @@ func (a *ConsumerFactory) Create(key string, components qmq.EngineComponentProvi
 	return qmq.NewRedisConsumer(redisConnection, &qmq.RedisConsumerConfig{
 		Topic:        key,
 		Transformers: components.WithTransformerProvider().Get(transformerKey),
-		CopyOriginal: true,
+		AckOriginal:  false,
 	})
 }
