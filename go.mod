@@ -3,7 +3,7 @@ module github.com/rqure/qlogger
 go 1.21.6
 
 require (
-	github.com/rqure/qmq v1.1.22
+	github.com/rqure/qmq v1.1.23
 	google.golang.org/protobuf v1.32.0
 )
 
